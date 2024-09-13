@@ -62,3 +62,16 @@ fetch("http://localhost:5678/api/works")
     .catch(error => {
         console.error('Erreur:', error);
     })
+
+    // Système de Token et vérification Login
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const token = localStorage.getItem('authToken');
+    
+        if (!token) {
+            console.log('Utilisateur non connecté')
+        } else {
+            console.log('Utilisateur connecté');
+        }
+    });
+    
