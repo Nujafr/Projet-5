@@ -107,25 +107,21 @@ function createEditHeader() {
 }
 
 function createmodal() {
-  // Ajouter un gestionnaire d'événements pour ouvrir la fenêtre modale
   modifier.addEventListener("click", () => {
-    // Vérifier si la modale existe déjà
     if (document.getElementById("modal")) return; // Sortir si la modale est déjà ouverte
 
-    // Créer l'overlay
     const overlay = document.createElement("div");
-    overlay.id = "overlay"; // Ajouter un ID pour identifier l'overlay
+    overlay.id = "overlay";
     overlay.style.position = "fixed";
     overlay.style.top = "0";
     overlay.style.left = "0";
     overlay.style.width = "100%";
     overlay.style.height = "100%";
-    overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)"; // Couleur noire avec opacité
-    overlay.style.zIndex = "999"; // Doit être en dessous de la modale
+    overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+    overlay.style.zIndex = "999";
 
-    // Créer la fenêtre modale
     const modal = document.createElement("div");
-    modal.id = "modal"; // Ajouter un ID pour identifier la modale
+    modal.id = "modal";
     modal.style.position = "fixed";
     modal.style.top = "50%";
     modal.style.left = "50%";
@@ -133,24 +129,85 @@ function createmodal() {
     modal.style.backgroundColor = "white";
     modal.style.padding = "20px";
     modal.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
-    modal.style.zIndex = "1000"; // Doit être au-dessus de l'overlay
+    modal.style.zIndex = "1000";
 
-    // Ajouter un contenu à la modale
-    const modalContent = document.createElement("h3");
-    modalContent.textContent = "Galerie Photo";
-    modal.appendChild(modalContent);
+    const modalTitle = document.createElement("h3");
+    modalTitle.textContent = "Galerie Photo";
+    modalTitle.style.margin = "20px";
+    modalTitle.style.textAlign = "center";
+    modalTitle.style.fontWeight = "400";
+    modalTitle.style.fontSize = "26px";
+    modal.appendChild(modalTitle);
 
-    // Ajouter un bouton pour fermer la modale
-    const closeButton = document.createElement("button");
-    closeButton.textContent = "Fermer";
+    //Fichiers Galerie ajoutés dans la modale
+    dataCollected.forEach(work => {
+      const imgContainer = document.createElement("div");
+      imgContainer.style.position = "relative";
+      imgContainer.style.display = "inline-block";
+      imgContainer.style.margin = "10px";
+      imgContainer.style.textAlign = "center";
+    
+
+      const img = document.createElement("img");
+      img.src = work.imageUrl;
+      img.style.width = "100px";
+      img.style.height = "auto";
+
+      const deleteIcon = document.createElement("span");
+      deleteIcon.innerHTML = "🗑️"; // Utilisez une icône ou une image pour la poubelle
+      deleteIcon.style.position = "absolute";
+      deleteIcon.style.top = "5px";
+      deleteIcon.style.right = "5px";
+      deleteIcon.style.cursor = "pointer";
+
+      // Gestionnaire d'événements pour supprimer l'élément
+      deleteIcon.addEventListener("click", async (e) => {
+        e.stopPropagation(); // Empêche la fermeture de la modale
+
+        // Supprimer l'élément de dataCollected
+        const itemId = work.id; 
+        dataCollected.splice(itemId, 1);
+
+        // Appeler l'API pour supprimer l'élément du serveur
+        try {
+          await fetch(`http://localhost:5678/api/works/${itemId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem("authToken")}` // Si vous utilisez un token d'authentification
+            }
+          });
+          imgContainer.remove(); // Supprime l'élément de la modale
+        } catch (error) {
+          console.error("Erreur lors de la suppression de l'élément :", error);
+        }
+      });
+
+      imgContainer.appendChild(img);
+      imgContainer.appendChild(deleteIcon);
+      modal.appendChild(imgContainer);
+    });
+
+    const closeButton = document.createElement("span");
+    closeButton.innerHTML = "×"
+    closeButton.style.position = "absolute";
+    closeButton.style.top = "10px";
+    closeButton.style.right = "10px";
+    closeButton.style.fontSize = "30px";
+    closeButton.style.cursor = "pointer";
     closeButton.addEventListener("click", () => {
-      document.body.removeChild(modal); // Fermer la modale
-      document.body.removeChild(overlay); // Retirer l'overlay
+      document.body.removeChild(modal);
+      document.body.removeChild(overlay);
     });
     modal.appendChild(closeButton);
 
-    document.body.appendChild(overlay); // Ajouter l'overlay au corps
-    document.body.appendChild(modal); // Ajouter la modale au corps
+    overlay.addEventListener("click", () => {
+      document.body.removeChild(modal);
+      document.body.removeChild(overlay);
+    });
+
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
   });
 }
 
