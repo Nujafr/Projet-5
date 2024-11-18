@@ -128,12 +128,14 @@ function createHTMLModal() {
 function AddPhotoButton() {
   const addButton = document.createElement("button");
   const modal = document.getElementById("modal");
+  const overlay = document.getElementById("overlay");
   addButton.textContent = "Ajouter des photos";
   addButton.style.cssText =
     "width: 237px; height: 36px; border-radius: 60px; background-color: #1D6154; color: white; border: none; cursor: pointer; font-size: 14px; font-weight: 700; display: block; margin: 20px auto;";
   addButton.addEventListener("click", () => {
     modal.style.display = "none"; // Cacher la première modale
-    createAddPhotoModal(modal, overlay); // Passer la modale et l'overlay pour les réafficher
+    overlay.remove();
+    createAddPhotoModal(modal); // Passer uniquement la modale
   });
   modal.appendChild(addButton);
 }
@@ -450,27 +452,26 @@ fetch("http://localhost:5678/api/works")
   .then((response) => response.json())
   .then((data) => {
     dataCollected = data;
-
     dataCollected.forEach((work) => {
       gallery.appendChild(createFigure(work));
     });
-
-    createAllButton();
-    CreateFiltersAndButtons();
   })
   .catch((error) => {
     console.error("Erreur:", error);
   });
 
 // Système de Token et vérification Login
-
 const token = localStorage.getItem("authToken");
 
 if (!token) {
   console.log("Utilisateur non connecté");
+  // Afficher les filtres uniquement si l'utilisateur n'est pas connecté
+  createAllButton();
+  CreateFiltersAndButtons();
 } else {
   console.log("Utilisateur connecté");
-
+  // Cacher le conteneur de filtres
+  filter.style.display = "none";
   createEditHeader();
   createmodal();
 }
