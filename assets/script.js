@@ -175,7 +175,7 @@ function createmodal() {
       img.style.cssText = "width: 100px; height: auto;";
 
       const deleteIcon = document.createElement("span");
-      deleteIcon.innerHTML = "🗑️"; // Utilisez une icône ou une image pour la poubelle
+      deleteIcon.innerHTML = "🗑️"; 
       deleteIcon.style.cssText =
         "position: absolute; top: 5px; right: 5px; cursor: pointer;";
 
@@ -424,6 +424,26 @@ function createAddPhotoModal(parentModal, parentOverlay) {
 
   document.body.appendChild(overlay);
   document.body.appendChild(modal);
+
+  // Add back arrow
+  const backArrow = document.createElement("i");
+  backArrow.classList.add("fa-solid", "fa-arrow-left");
+  backArrow.style.cssText = `
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    font-size: 20px;
+    cursor: pointer;
+    color: black;
+  `;
+  
+  backArrow.addEventListener("click", () => {
+    document.body.removeChild(modal);
+    document.body.removeChild(overlay);
+    parentModal.style.display = "block";
+  });
+  
+  modal.appendChild(backArrow);
 }
 
 fetch("http://localhost:5678/api/works")
@@ -432,7 +452,7 @@ fetch("http://localhost:5678/api/works")
     dataCollected = data;
 
     dataCollected.forEach((work) => {
-      gallery.appendChild(createFigure(work)); // Utiliser la fonction pour ajouter les éléments
+      gallery.appendChild(createFigure(work));
     });
 
     createAllButton();
