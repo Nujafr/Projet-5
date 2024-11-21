@@ -80,8 +80,21 @@ function createEditHeader() {
   icon.classList.add("fa-solid", "fa-pen-to-square");
   header.textContent = "Mode Edition";
   header.insertBefore(icon, header.firstChild);
-  icon.style.cssText =
-    "padding-right: 10px; font-weight: bold; text-align: center; padding: 15px; background-color: black; color: white;";
+  
+  // Mise à jour du style pour le header
+  header.style.cssText = `
+    width: 100%;
+    background-color: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 0;
+  `;
+  
+  // Mise à jour du style pour l'icône
+  icon.style.cssText = "margin-right: 10px;";
+  
   document.body.prepend(header);
 
   const connected = document.getElementById("connected");
@@ -134,7 +147,6 @@ function AddPhotoButton() {
     "width: 237px; height: 36px; border-radius: 60px; background-color: #1D6154; color: white; border: none; cursor: pointer; font-size: 14px; font-weight: 700; display: block; margin: 20px auto;";
   addButton.addEventListener("click", () => {
     modal.style.display = "none"; // Cacher la première modale
-    overlay.remove();
     createAddPhotoModal(modal); // Passer uniquement la modale
   });
   modal.appendChild(addButton);
@@ -146,24 +158,30 @@ function CloseModal() {
   closeButton.innerHTML = "×";
   closeButton.style.cssText =
     "position: absolute; top: 10px; right: 10px; font-size: 30px; cursor: pointer;";
+  
   closeButton.addEventListener("click", () => {
-    document.body.removeChild(modal);
-    document.body.removeChild(overlay);
+    const modalElement = document.getElementById("modal");
+    if (modalElement) modalElement.remove();
+    const overlayElement = document.getElementById("overlay");
+    if (overlayElement) overlayElement.remove();
   });
+  
   modal.appendChild(closeButton);
 
   overlay.addEventListener("click", () => {
-    document.body.removeChild(modal);
-    document.body.removeChild(overlay);
+    const modalElement = document.getElementById("modal");
+    if (modalElement) modalElement.remove();
+    const overlayElement = document.getElementById("overlay");
+    if (overlayElement) overlayElement.remove();
   });
 }
 // Fonction pour créer la modale
 function createmodal() {
   modifier.addEventListener("click", () => {
-    if (document.getElementById("modal")) return; // Sortir si la modale est déjà ouverte
+    if (document.getElementById("modal")) return;
 
     createHTMLModal();
-
+    
     //Fichiers Galerie ajoutés dans la modale
     dataCollected.forEach((work) => {
 
@@ -219,12 +237,10 @@ function createmodal() {
 }
 
 // Nouvelle fonction pour créer la modale d'ajout de photos
-function createAddPhotoModal(parentModal, parentOverlay) {
-  const overlay = document.createElement("div");
-  overlay.id = "overlay";
-  overlay.style.cssText =
-    "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999;";
-
+function createAddPhotoModal(parentModal) {
+  // Réutiliser l'overlay existant au lieu d'en créer un nouveau
+  const existingOverlay = document.getElementById("overlay");
+  
   const modal = document.createElement("div");
   modal.id = "add-photo-modal";
   modal.style.cssText =
@@ -396,8 +412,15 @@ function createAddPhotoModal(parentModal, parentOverlay) {
       const newWork = await response.json(); // Récupérer le nouvel élément ajouté
       dataCollected.push(newWork); // Ajouter à dataCollected
       gallery.appendChild(createFigure(newWork)); // Met à jour la galerie
-      modal.remove(); // Fermer la modale d'ajout
-      overlay.remove(); // Fermer l'overlay
+      
+      // Supprimer proprement les éléments
+      const modalElement = document.getElementById("modal");
+      if (modalElement) modalElement.remove();
+      modal.remove();
+      existingOverlay.remove();
+      
+      // Réinitialiser l'affichage de la modale parente
+      if (parentModal) parentModal.remove();
     } catch (error) {
       console.error("Erreur lors de l'ajout de la photo :", error);
     }
@@ -411,20 +434,15 @@ function createAddPhotoModal(parentModal, parentOverlay) {
     "position: absolute; top: 10px; right: 10px; font-size: 30px; cursor: pointer;";
   closeButton.addEventListener("click", () => {
     document.body.removeChild(modal);
-    document.body.removeChild(overlay);
     parentModal.style.display = "block";
   });
   modal.appendChild(closeButton);
 
-  document.addEventListener("click", (e) => {
-    if (e.target === overlay) {
-      document.body.removeChild(modal);
-      document.body.removeChild(overlay);
-      parentModal.style.display = "block";
-    }
+  existingOverlay.addEventListener("click", () => {
+    document.body.removeChild(modal);
+    parentModal.style.display = "block";
   });
 
-  document.body.appendChild(overlay);
   document.body.appendChild(modal);
 
   // Add back arrow
@@ -441,7 +459,6 @@ function createAddPhotoModal(parentModal, parentOverlay) {
   
   backArrow.addEventListener("click", () => {
     document.body.removeChild(modal);
-    document.body.removeChild(overlay);
     parentModal.style.display = "block";
   });
   
